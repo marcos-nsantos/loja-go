@@ -58,3 +58,22 @@ func CriarNovoProduto(nome string, descricao string, preco float64, quantidade u
 		log.Panic(err.Error())
 	}
 }
+
+func DeletarProduto(ID string) {
+	db, err := database.Conectar()
+	if err != nil {
+		log.Panic(err.Error())
+	}
+	defer db.Close()
+
+	deletaProduto, err := db.Prepare("DELETE FROM produto WHERE id=$1")
+	if err != nil {
+		log.Panic(err)
+	}
+	defer deletaProduto.Close()
+
+	_, err = deletaProduto.Exec(ID)
+	if err != nil {
+		log.Panic(err.Error())
+	}
+}
