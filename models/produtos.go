@@ -77,3 +77,45 @@ func DeletarProduto(ID string) {
 		log.Panic(err.Error())
 	}
 }
+
+func DetalhesDoProduto(ID string) Produto {
+	db, err := database.Conectar()
+	if err != nil {
+		log.Panic(err.Error())
+	}
+	defer db.Close()
+
+	produtoDoBanco, err := db.Query("SELECT * FROM produto WHERE id=$1", ID)
+	if err != nil {
+		log.Panic(err.Error())
+	}
+	defer produtoDoBanco.Close()
+
+	produto := Produto{}
+	for produtoDoBanco.Next() {
+		err := produtoDoBanco.Scan(&produto.ID, &produto.Nome, &produto.Descricao, &produto.Preco, &produto.Quantidade)
+		if err != nil {
+			log.Panic(err.Error())
+		}
+	}
+	return produto
+}
+
+func AtualizarProduto(ID uint64, nome string, descricao string, preco float64, quantidade uint64) {
+	db, err := database.Conectar()
+	if err != nil {
+		log.Panic(err.Error())
+	}
+	defer db.Close()
+
+	atualizaProduto, err := db.Prepare("UPDATE produto SET nome=$1, descricao=$2, preco=$3, quantidade=$4 WHERE id=$5")
+	if err != nil {
+		log.Panic(err.Error())
+	}
+	defer atualizaProduto.Close()
+
+	_, err = atualizaProduto.Exec(nome, descricao, preco, quantidade, ID)
+	if err != nil {
+		log.Panic(err.Error())
+	}
+}
