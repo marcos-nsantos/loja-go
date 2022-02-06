@@ -39,3 +39,22 @@ func BuscarTodosOsProdutos() []Produto {
 	}
 	return produtos
 }
+
+func CriarNovoProduto(nome string, descricao string, preco float64, quantidade uint64) {
+	db, err := database.Conectar()
+	if err != nil {
+		log.Panic(err.Error())
+	}
+	defer db.Close()
+
+	insereDadosNoBanco, err := db.Prepare("INSERT INTO produto(nome, descricao, preco, quantidade) VALUES ($1, $2, $3, $4)")
+	if err != nil {
+		log.Panic(err.Error())
+	}
+	defer insereDadosNoBanco.Close()
+
+	_, err = insereDadosNoBanco.Exec(nome, descricao, preco, quantidade)
+	if err != nil {
+		log.Panic(err.Error())
+	}
+}
